@@ -120,47 +120,47 @@ class KogumikuHaldur:
                 rida["hinne"] = None
             return rida
 
-        def uuenda_teos(self, teose_id: int, muudatused: Dict[str, Any]) -> bool:
-            """Uuenda olemasoleva teose välju."""
-            if "id" in muudatused:
-                muudatused.pop("id")
-            df = self._loe_df()
-            mask = df["id"] == int(teose_id)
-            if not mask.any():
-                return False
+    def uuenda_teos(self, teose_id: int, muudatused: Dict[str, Any]) -> bool:
+        """Uuenda olemasoleva teose välju."""
+        if "id" in muudatused:
+            muudatused.pop("id")
+        df = self._loe_df()
+        mask = df["id"] == int(teose_id)
+        if not mask.any():
+            return False
 
-            i = df.index[mask][0]
-            for võti, väärtus in muudatused.items():
-                if võti not in VEERUD:
-                    continue
-                if võti == "meedia_tüüp" and väärtus:
-                    t = väärtus.strip().lower()
-                    if t not in LUBATUD_TÜÜBID:
-                        raise ValueError(f"Meedia tüüp peab olema üks järgmistest: {LUBATUD_TÜÜBID}")
-                    df.at[i, võti] = t
-                    continue
-                if võti == "staatus" and väärtus:
-                    s = väärtus.strip().lower()
-                    if s not in LUBATUD_STAATUSED:
-                        raise ValueError(f"Staatus peab olema üks järgmistest: {LUBATUD_STAATUSED}")
-                    df.at[i, võti] = s
-                    continue
-                if võti == "hinne":
-                    df.at[i, võti] = float(väärtus) if väärtus not in ("", None) else ""
-                    continue
-                df.at[i, võti] = str(väärtus) if väärtus is not None else ""
-            self._kirjuta_df(df)
-            return True
+        i = df.index[mask][0]
+        for võti, väärtus in muudatused.items():
+            if võti not in VEERUD:
+                continue
+            if võti == "meedia_tüüp" and väärtus:
+                t = väärtus.strip().lower()
+                if t not in LUBATUD_TÜÜBID:
+                    raise ValueError(f"Meedia tüüp peab olema üks järgmistest: {LUBATUD_TÜÜBID}")
+                df.at[i, võti] = t
+                continue
+            if võti == "staatus" and väärtus:
+                s = väärtus.strip().lower()
+                if s not in LUBATUD_STAATUSED:
+                    raise ValueError(f"Staatus peab olema üks järgmistest: {LUBATUD_STAATUSED}")
+                df.at[i, võti] = s
+                continue
+            if võti == "hinne":
+                df.at[i, võti] = float(väärtus) if väärtus not in ("", None) else ""
+                continue
+            df.at[i, võti] = str(väärtus) if väärtus is not None else ""
+        self._kirjuta_df(df)
+        return True
 
-        def kustuta_teos(self, teose_id: int) -> bool:
-            """Kustuta teos ID järgi."""
-            df = self._loe_df()
-            enne = len(df)
-            df = df[df["id"] != int(teose_id)]
-            if len(df) == enne:
-                return False
-            self._kirjuta_df(df)
-            return True
+    def kustuta_teos(self, teose_id: int) -> bool:
+        """Kustuta teos ID järgi."""
+        df = self._loe_df()
+        enne = len(df)
+        df = df[df["id"] != int(teose_id)]
+        if len(df) == enne:
+            return False
+        self._kirjuta_df(df)
+        return True
 
     #Otsimine ning filtreerimine
     def otsi_ja_filtreeri(
