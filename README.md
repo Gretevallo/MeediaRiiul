@@ -21,3 +21,7 @@ Kogumik võimaldab:
 - `main.py` – põhiprogramm
 - `data.csv` – andmete hoidmine
 - `README.md` – projekti kirjeldus
+
+## Alfaversioon
+
+Alfaversioonis saab...
