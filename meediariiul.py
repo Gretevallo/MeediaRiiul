@@ -131,16 +131,70 @@ def arvuta_statistika(df: pd.DataFrame) -> None:
 
 # --- PEAPROGRAMM ---
 
+
 def main():
     haldur = KogumikuHaldur()
 
-    df = haldur.loe_koik()
-    print("\n--- Kontroll ---")
-    print("Veerunimed:", df.columns.tolist())
-    print(df.head(), "\n")
+    while True:
+        print("\n--- Meediariiul ---")
+        print("1. Lisa uus teos")
+        print("2. Vaata soovinimekirja")
+        print("3. Kuva statistika")
+        print("4. Näita kõiki teoseid")
+        print("5. Välju")
 
-    kuva_soovinimekiri(df)
-    arvuta_statistika(df)
+        valik = input("Vali tegevus (1-5): ").strip()
+
+        if valik == "1":
+            pealkiri = input("Pealkiri: ").strip()
+            meedia_tüüp = input("Tüüp (raamat/film/sari): ").strip().lower()
+            žanr = input("Žanr (valikuline): ").strip()
+            autor = input("Autor või režissöör (valikuline): ").strip()
+            staatus = input("Staatus (lõpetatud/soovinimekiri/pooleli/peatatud): ").strip().lower()
+            hinne = input("Hinne (valikuline, 0-10): ").strip()
+            arvamus = input("Arvamus (valikuline): ").strip()
+            kuupäev = input("Kuupäev (nt 2025-11-04, valikuline): ").strip()
+            lisainfo = input("Lisainfo (valikuline): ").strip()
+
+            try:
+                hinne_float = float(hinne) if hinne else None
+                teos = haldur.lisa_teos(
+                    pealkiri,
+                    meedia_tüüp,
+                    žanr,
+                    autor,
+                    staatus,
+                    hinne_float,
+                    arvamus,
+                    kuupäev,
+                    lisainfo
+                )
+                print(f"\n✅ Teos lisatud (ID: {teos['id']})")
+            except Exception as e:
+                print(f"❌ Viga: {e}")
+
+        elif valik == "2":
+            df = haldur.loe_koik()
+            kuva_soovinimekiri(df)
+
+        elif valik == "3":
+            df = haldur.loe_koik()
+            arvuta_statistika(df)
+
+        elif valik == "4":
+            df = haldur.loe_koik()
+            if df.empty:
+                print("📂 Kogumik on tühi.")
+            else:
+                print(df.to_string(index=False))
+
+        elif valik == "5":
+            print("👋 Head aega!")
+            break
+
+        else:
+            print("❌ Vigane valik. Proovi uuesti.")
+
 
 
 if __name__ == "__main__":

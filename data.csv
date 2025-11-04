@@ -1,3 +1,2 @@
-id, pealkiri, tüüp, autor, aasta, žanr, staatus, kuupäev, hinnang, arvamus
-1, Harry Potter ja Tarkade Kivi, raamat, J.K Rowling, 1997, fantaasia, lõpetatud, 2025-01-10, 9, Väga põnev lugemine
-2, Breaking Bad, seriaal, Vince Killigan, 2008, draama, soovib,
+id,pealkiri,meedia_tüüp,žanr,autor_või_režissöör,staatus,hinne,arvamus,kuupäev,lisainfo
+1,Frostblood,raamat,fantaasia,Elly Blake,lõpetatud,9.0,Väga hea raamat!,25.10.2023,
