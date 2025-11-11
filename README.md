@@ -22,10 +22,10 @@ Kogumik võimaldab:
 - `data.csv` – andmete hoidmine
 - `README.md` – projekti kirjeldus
 
-## Alfaversioon
+# Alfaversioon
 
-Alfaversiooni võimaldab kasutajal hallata oma isiklikku meediakogumikku (nt raamatuid, filme ja sarju): lisada uusi teoseid, vaadata soovinimekirja,näha loetud raamatute  statistikat (nt keskmine hinne), salvestada kõik andmed automaatselt faili data.csv.
+Alfaversiooni võimaldab kasutajal hallata oma isiklikku meediakogumikku (nt raamatuid, filme ja sarju): lisada uusi teoseid, vaadata soovinimekirja,näha loetud raamatute  statistikat (nt keskmine hinnang), salvestada kõik andmed automaatselt faili data.csv.
 
-Uue teose lisamisel saab kasutaja sisestada: pealkirja, meedia tüübi (raamat / film / sari), žanri, autori või režissööri, staatuse (lõpetatud / soovinimekiri / pooleli / peatatud), hinde, arvamuse, kuupäeva ja lisainfo
+Uue teose lisamisel saab kasutaja sisestada: pealkirja, meedia tüübi (raamat / film / sari), žanri, autori või režissööri, staatuse (lõpetatud / soovinimekiri / pooleli / peatatud), hinnangu, arvamuse, kuupäeva ja lisainfo
 Programm valideerib, et tüüp ja staatus oleksid lubatud väärtused.
 Kõik andmed salvestatakse püsivalt faili data.csv.
