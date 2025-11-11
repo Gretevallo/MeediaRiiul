@@ -18,7 +18,7 @@ Kogumik võimaldab:
 
 ## Failid
 
-- `main.py` – põhiprogramm
+- `meediariiul.py` – põhiprogramm
 - `data.csv` – andmete hoidmine
 - `README.md` – projekti kirjeldus
 
