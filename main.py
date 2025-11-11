@@ -1,47 +1,56 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 
-# Loeme faili, lubame lisakomad ja eemaldame tühjad veerud
-df = pd.read_csv(
-    "data.csv",
-    sep=",",
-    engine="python",
-    encoding="utf-8",
-    dtype=str,
-    on_bad_lines="skip"  # ignoreerib liialt pikki ridu
-).fillna("")
+# --- Andmete lugemine ja puhastamine ---
+def loe_andmed(failitee: str) -> pd.DataFrame:
+    """Loeb CSV-faili ja puhastab veerunimed."""
+    df = pd.read_csv(
+        failitee,
+        sep=",",
+        engine="python",
+        encoding="utf-8",
+        dtype=str,
+        on_bad_lines="skip"
+    ).fillna("")
+    
+    # Puhastame veerunimed
+    df.columns = (
+        df.columns
+        .str.replace('\ufeff', '', regex=True)
+        .str.strip()
+        .str.lower()
+    )
+    
+    return df
 
-# Puhastame veerunimed
-df.columns = df.columns.str.replace('\ufeff', '', regex=True)
-df.columns = df.columns.str.strip().str.lower()
 
-print("\n--- Kontroll ---")
-print("Veerunimed:", df.columns.tolist())
-print(df.head(), "\n")
-
-# Kontrollime, et 'staatus' veerg on olemas
-if "staatus" not in df.columns:
-    print("❌ Failis pole veergu nimega 'staatus'.")
-else:
-    # Puhastame väärtused
+# --- Soovide kuvamine ---
+def kuva_soovid(df: pd.DataFrame) -> None:
+    """Kuvab kõik kirjed, mille staatus on 'soovib'."""
+    if "staatus" not in df.columns:
+        print("❌ Failis pole veergu nimega 'staatus'.")
+        return
+    
     df["staatus"] = df["staatus"].astype(str).str.strip().str.lower()
     print("Staatus veeru unikaalsed väärtused:", df["staatus"].unique())
-
-    # Filtreerime soovitud kirjed
+    
     soovid = df[df["staatus"] == "soovib"]
-
     if soovid.empty:
         print("❌ Soovide nimekiri on tühi.")
     else:
         print("\n✅ Soovide nimekiri:")
-        print(soovid[["id", "pealkiri", "tüüp", "žanr"]].to_string(index=False))
+        veerud = [col for col in ["id", "pealkiri", "tüüp", "žanr"] if col in soovid.columns]
+        print(soovid[veerud].to_string(index=False))
 
 
-def arvuta_statistika(df):
-    # Puhastame hinnangu veeru arvudeks
+# --- Statistika ---
+def arvuta_statistika(df: pd.DataFrame) -> None:
+    """Arvutab ja kuvab loetud raamatute statistika."""
+    if "hinnang" not in df.columns or "tüüp" not in df.columns or "staatus" not in df.columns:
+        print("\n⚠️ Statistikat ei saa arvutada – mõni vajalik veerg puudub.")
+        return
+
     df["hinnang"] = pd.to_numeric(df["hinnang"], errors="coerce")
     
-    # Filtreerime ainult lõpetatud raamatud
     loetud_raamatud = df[
         (df["tüüp"].str.strip().str.lower() == "raamat") &
         (df["staatus"].str.strip().str.lower() == "lõpetatud")
@@ -52,9 +61,21 @@ def arvuta_statistika(df):
     
     print("\n📚 Statistika")
     print(f"Loetud raamatuid kokku: {loetud_arv}")
-    if loetud_arv > 0:
-        print(f"Keskmine hinnang: {keskmine_hinnang:.2f}")
-    else:
-        print("Keskmine hinnang: — (pole loetud raamatuid)")
+    print(f"Keskmine hinnang: {keskmine_hinnang:.2f}" if loetud_arv > 0 else "Keskmine hinnang: — (pole loetud raamatuid)")
 
-arvuta_statistika(df)
+
+# --- Peaprogramm ---
+def main():
+    df = loe_andmed("data.csv")
+    
+    print("\n--- Kontroll ---")
+    print("Veerunimed:", df.columns.tolist())
+    print(df.head(), "\n")
+    
+    kuva_soovid(df)
+    arvuta_statistika(df)
+
+
+if __name__ == "__main__":
+    main()
+

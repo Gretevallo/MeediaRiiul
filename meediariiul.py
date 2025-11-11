@@ -203,31 +203,27 @@ def kuva_soovinimekiri(df: pd.DataFrame) -> None:
 
 
 def arvuta_statistika(df: pd.DataFrame) -> None:
-    """Arvutab ja kuvab loetud raamatute, vaadatud filmide ja seriaalide statistika."""
     df["hinne"] = pd.to_numeric(df["hinne"], errors="coerce")
+
+    # Normaliseerime väljad enne filtreerimist
+    # df["meedia_tüüp"] = df["meedia_tüüp"].str.strip().str.lower()
+    # df["staatus"] = df["staatus"].str.strip().str.lower()
 
     kategooriad = {
         "raamat": "📚 Loetud raamatud",
         "film": "🎬 Vaadatud filmid",
-        "seriaal": "📺 Vaadatud seriaalid"
+        "sari": "📺 Vaadatud sarjad"
     }
 
     print("\n⭐ Üldstatistika")
 
     for tüüp, pealkiri in kategooriad.items():
-        valik = df[
-            (df["meedia_tüüp"].str.lower() == tüüp)
-            & (df["staatus"].str.lower() == "lõpetatud")
-        ]
-
+        valik = df[(df["meedia_tüüp"] == tüüp) & (df["staatus"] == "lõpetatud")]
         arv = len(valik)
         keskmine = valik["hinne"].mean()
-
         print(f"\n{pealkiri}: {arv}")
-        if arv > 0:
-            print(f"Keskmine hinne: {keskmine:.2f}")
-        else:
-            print("Keskmine hinne: — (pole lõpetatud)")
+        print("Keskmine hinne:", f"{keskmine:.2f}" if arv else "—")
+
 
 
 
@@ -247,6 +243,7 @@ def main():
         print("6. Uuenda olemasoleva teose andmeid")
         print("7. Kustuta teos")
         print("8. Välju")
+        
 
         valik = input("Vali tegevus (1-6): ").strip()
 

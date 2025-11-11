@@ -1,2 +1,4 @@
 id,pealkiri,meedia_tüüp,žanr,autor_või_režissöör,staatus,hinne,arvamus,kuupäev,lisainfo
-1,Frostblood,raamat,fantaasia,Elly Blake,lõpetatud,9.0,Väga hea raamat!,25.10.2023,
+1,Frostblood,raamat,fantaasia,Elly Blake,lõpetatud,9.0,,,
+3,The dune,film,ulme,,lõpetatud,8.0,,,
+4,Breaking bad,sari,krimi,,lõpetatud,8.0,,,
