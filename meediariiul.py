@@ -278,7 +278,7 @@ def main():
                 print(df.to_string(index=False))
 
         elif valik == "5":
-            sõna = input("Sisesta otsingusõna (või jäta tühjaks): ").strip()
+            sõna = input("Sisesta teose pealkiri (või jäta tühjaks): ").strip()
             df = haldur.otsi_ja_filtreeri(pealkiri=sõna)
             if df.empty:
                 print("❌ Midagi ei leitud.")
