@@ -95,8 +95,101 @@ class KogumikuHaldur:
         """Tagasta kogu kogumik andmetabelina."""
         return self._loe_df()
 
+    def leia_teos(self, teose_id: int) -> Optional[Dict[str, Any]]:
+        """Leia teos ID järgi."""
+        df = self._loe_df()
+        valik = df[df["id"].astype(str) == str(teose_id)]
+        if valik.empty:
+            return None
+        rida = valik.iloc[0].to_dict()
+        if rida.get("hinne"):
+            try:
+                rida["hinne"] = float(rida["hinne"])
+            except ValueError:
+                rida["hinne"] = None
+        return rida
+
+    def uuenda_teos(self, teose_id: int, muudatused: Dict[str, Any]) -> bool:
+        """Uuenda olemasoleva teose andmeid."""
+        df = self._loe_df()
+        mask = df["id"].astype(str) == str(teose_id)
+        if not mask.any():
+            return False
+
+        i = df.index[mask][0]
+        for võti, väärtus in muudatused.items():
+            if võti not in VEERUD:
+                continue
+            if võti == "meedia_tüüp" and väärtus:
+                t = väärtus.strip().lower()
+                if t not in LUBATUD_TÜÜBID:
+                    raise ValueError(f"Meedia tüüp peab olema üks järgmistest: {LUBATUD_TÜÜBID}")
+                df.at[i, võti] = t
+                continue
+            if võti == "staatus" and väärtus:
+                s = väärtus.strip().lower()
+                if s not in LUBATUD_STAATUSED:
+                    raise ValueError(f"Staatus peab olema üks järgmistest: {LUBATUD_STAATUSED}")
+                df.at[i, võti] = s
+                continue
+            if võti == "hinne":
+                df.at[i, võti] = float(väärtus) if väärtus not in ("", None) else ""
+                continue
+            df.at[i, võti] = str(väärtus) if väärtus is not None else ""
+        self._kirjuta_df(df)
+        return True
+
+    def kustuta_teos(self, teose_id: int) -> bool:
+        """Kustuta teos ID järgi."""
+        df = self._loe_df()
+        enne = len(df)
+        df = df[df["id"].astype(str) != str(teose_id)]
+        if len(df) == enne:
+            return False
+        self._kirjuta_df(df)
+        return True
+
+    def otsi_ja_filtreeri(
+        self,
+        pealkiri: Optional[str] = None,
+        meedia_tüübid: Optional[List[str]] = None,
+        staatused: Optional[List[str]] = None,
+        žanr: Optional[str] = None,
+        autor: Optional[str] = None,
+        aasta: Optional[int] = None,
+    ) -> pd.DataFrame:
+        """Otsi ja filtreeri teoseid erinevate kriteeriumite järgi."""
+        df = self._loe_df()
+        if df.empty:
+            return df
+
+        mask = pd.Series([True] * len(df), index=df.index)
+
+        if pealkiri:
+            mask &= df["pealkiri"].str.lower().str.contains(pealkiri.lower(), na=False)
+        if meedia_tüübid:
+            tüüpide_komplekt = {t.strip().lower() for t in meedia_tüübid}
+            mask &= df["meedia_tüüp"].str.lower().isin(tüüpide_komplekt)
+        if staatused:
+            staatused_komplekt = {s.strip().lower() for s in staatused}
+            mask &= df["staatus"].str.lower().isin(staatused_komplekt)
+        if žanr:
+            mask &= df["žanr"].str.lower().str.contains(žanr.lower(), na=False)
+        if autor:
+            mask &= df["autor_või_režissöör"].str.lower().str.contains(autor.lower(), na=False)
+        if aasta:
+            def sobib_aasta(v):
+                try:
+                    return str(aasta) == str(v)[:4]
+                except Exception:
+                    return False
+            mask &= df["kuupäev"].apply(sobib_aasta)
+
+        return df[mask].reset_index(drop=True)
+
 
 # --- LISAFUNKTSIOONID VÄLJASTAMISEKS JA STATISTIKAKS ---
+
 
 def kuva_soovinimekiri(df: pd.DataFrame) -> None:
     """Kuvab kõik teosed, mille staatus on 'soovinimekiri'."""
@@ -141,9 +234,12 @@ def main():
         print("2. Vaata soovinimekirja")
         print("3. Kuva statistika")
         print("4. Näita kõiki teoseid")
-        print("5. Välju")
+        print("5. Otsi ja filtreeri")
+        print("6. Uuenda olemasoleva teose andmeid")
+        print("7. Kustuta teos")
+        print("8. Välju")
 
-        valik = input("Vali tegevus (1-5): ").strip()
+        valik = input("Vali tegevus (1-6): ").strip()
 
         if valik == "1":
             pealkiri = input("Pealkiri: ").strip()
@@ -159,15 +255,8 @@ def main():
             try:
                 hinne_float = float(hinne) if hinne else None
                 teos = haldur.lisa_teos(
-                    pealkiri,
-                    meedia_tüüp,
-                    žanr,
-                    autor,
-                    staatus,
-                    hinne_float,
-                    arvamus,
-                    kuupäev,
-                    lisainfo
+                    pealkiri, meedia_tüüp, žanr, autor, staatus,
+                    hinne_float, arvamus, kuupäev, lisainfo
                 )
                 print(f"\n✅ Teos lisatud (ID: {teos['id']})")
             except Exception as e:
@@ -189,12 +278,57 @@ def main():
                 print(df.to_string(index=False))
 
         elif valik == "5":
+            sõna = input("Sisesta otsingusõna (või jäta tühjaks): ").strip()
+            df = haldur.otsi_ja_filtreeri(pealkiri=sõna)
+            if df.empty:
+                print("❌ Midagi ei leitud.")
+            else:
+                print(df.to_string(index=False))
+
+        elif valik == "6":
+            try:
+                teose_id = int(input("Sisesta teose ID, mida soovid muuta: ").strip())
+                olemasolev = haldur.leia_teos(teose_id)
+                if not olemasolev:
+                    print("❌ Sellise ID-ga teost ei leitud.")
+                    continue
+        
+                print("\nJäta väli tühjaks, kui ei soovi seda muuta.")
+                muudatused = {}
+                for väli in ["pealkiri", "meedia_tüüp", "žanr", "autor_või_režissöör",
+                             "staatus", "hinne", "arvamus", "kuupäev", "lisainfo"]:
+                    uus = input(f"{väli} (praegu: {olemasolev.get(väli, '')}): ").strip()
+                    if uus != "":
+                        muudatused[väli] = uus
+        
+                if haldur.uuenda_teos(teose_id, muudatused):
+                    print("✅ Teose andmed on uuendatud.")
+                else:
+                    print("❌ Teost ei leitud.")
+            except Exception as e:
+                print(f"❌ Viga uuendamisel: {e}")
+        
+        elif valik == "7":
+            try:
+                teose_id = int(input("Sisesta teose ID, mida soovid kustutada: ").strip())
+                kinnitus = input("Kas oled kindel, et soovid kustutada? (jah/ei): ").strip().lower()
+                if kinnitus == "jah":
+                    if haldur.kustuta_teos(teose_id):
+                        print("🗑️ Teos on kustutatud.")
+                    else:
+                        print("❌ Sellise ID-ga teost ei leitud.")
+                else:
+                    print("Kustutamine katkestatud.")
+            except Exception as e:
+                print(f"❌ Viga kustutamisel: {e}")
+
+
+        elif valik == "8":
             print("👋 Head aega!")
             break
 
         else:
             print("❌ Vigane valik. Proovi uuesti.")
-
 
 
 if __name__ == "__main__":
