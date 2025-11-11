@@ -203,23 +203,32 @@ def kuva_soovinimekiri(df: pd.DataFrame) -> None:
 
 
 def arvuta_statistika(df: pd.DataFrame) -> None:
-    """Arvutab ja kuvab loetud raamatute statistika."""
+    """Arvutab ja kuvab loetud raamatute, vaadatud filmide ja seriaalide statistika."""
     df["hinne"] = pd.to_numeric(df["hinne"], errors="coerce")
 
-    loetud = df[
-        (df["meedia_tüüp"].str.lower() == "raamat")
-        & (df["staatus"].str.lower() == "lõpetatud")
-    ]
+    kategooriad = {
+        "raamat": "📚 Loetud raamatud",
+        "film": "🎬 Vaadatud filmid",
+        "seriaal": "📺 Vaadatud seriaalid"
+    }
 
-    loetud_arv = len(loetud)
-    keskmine_hinne = loetud["hinne"].mean()
+    print("\n⭐ Üldstatistika")
 
-    print("\n📚 Statistika")
-    print(f"Loetud raamatuid kokku: {loetud_arv}")
-    if loetud_arv > 0:
-        print(f"Keskmine hinne: {keskmine_hinne:.2f}")
-    else:
-        print("Keskmine hinne: — (pole loetud raamatuid)")
+    for tüüp, pealkiri in kategooriad.items():
+        valik = df[
+            (df["meedia_tüüp"].str.lower() == tüüp)
+            & (df["staatus"].str.lower() == "lõpetatud")
+        ]
+
+        arv = len(valik)
+        keskmine = valik["hinne"].mean()
+
+        print(f"\n{pealkiri}: {arv}")
+        if arv > 0:
+            print(f"Keskmine hinne: {keskmine:.2f}")
+        else:
+            print("Keskmine hinne: — (pole lõpetatud)")
+
 
 
 # --- PEAPROGRAMM ---
