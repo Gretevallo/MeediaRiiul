@@ -209,7 +209,7 @@ def arvuta_statistika(df: pd.DataFrame) -> None:
     kategooriad = {
         "raamat": "📚 Loetud raamatud",
         "film": "🎬 Vaadatud filmid",
-        "seriaal": "📺 Vaadatud seriaalid"
+        "sari": "📺 Vaadatud sarjad"
     }
 
     print("\n⭐ Üldstatistika")
