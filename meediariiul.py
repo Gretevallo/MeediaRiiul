@@ -109,6 +109,47 @@ class KogumikuHaldur:
                 rida["hinne"] = None
         return rida
 
+    def parim_teos(df: pd.DataFrame):
+        df["hinne"] = pd.to_numeric(df["hinne"], errors="coerce")
+        lõpetatud = df[df["staatus"] == "lõpetatud"]
+        if lõpetatud.empty:
+            print("❌ Pole ühtegi hinnatud lõpetatud teost.")
+            return
+        parim = lõpetatud.sort_values("hinne", ascending=False).iloc[0]
+        print("\n🏆 Kõrgeima hinnanguga teos:")
+        print(f"{parim['pealkiri']} ({parim['meedia_tüüp']}) — hinne {parim['hinne']}")
+
+    def soovinimekirja_arv(df: pd.DataFrame):
+        arv = (df["staatus"] == "soovinimekiri").sum()
+        print(f"\n📝 Soovinimekirjas on kokku {arv} teost.")
+
+    def kuu_vordlus(df: pd.DataFrame):
+        if df.empty:
+            print("❌ Andmeid pole.")
+            return
+        df = df.copy()
+        df["kuupäev"] = pd.to_datetime(df["kuupäev"], errors="coerce")
+        df = df.dropna(subset=["kuupäev"])
+        if df.empty:
+            print("❌ Ühtegi kuupäeva pole märgitud.")
+            return
+        täna = pd.Timestamp.today()
+        see_kuu = df[(df["kuupäev"].dt.year == täna.year) &
+                     (df["kuupäev"].dt.month == täna.month)]
+        eelmine_kuu = df[
+            (df["kuupäev"].dt.year == (täna.year if täna.month > 1 else täna.year - 1)) &
+            (df["kuupäev"].dt.month == (täna.month - 1 if täna.month > 1 else 12))
+        ]
+        print("\n📊 Teoste arv ajas:")
+        print(f"Sel kuul lõpetatud: {len(see_kuu)}")
+        print(f"Eelmisel kuul lõpetatud: {len(eelmine_kuu)}")
+        if len(see_kuu) > len(eelmine_kuu):
+            print("📈 Sel kuul rohkem kui eelmisel!")
+        elif len(see_kuu) < len(eelmine_kuu):
+            print("📉 Sel kuul vähem kui eelmisel.")
+        else:
+            print("➖ Sama palju kui eelmisel kuul.")
+
     def uuenda_teos(self, teose_id: int, muudatused: Dict[str, Any]) -> bool:
         """Uuenda olemasoleva teose andmeid."""
         df = self._loe_df()
@@ -242,7 +283,10 @@ def main():
         print("5. Otsi ja filtreeri")
         print("6. Uuenda olemasoleva teose andmeid")
         print("7. Kustuta teos")
-        print("8. Välju")
+        print("8. Parim teos")
+        print("9. Soovinimekirja koguarv")
+        print("10. Võrdle: see kuu vs eelmine kuu")
+        print("11. Välju")
         
 
         valik = input("Vali tegevus (1-6): ").strip()
@@ -327,9 +371,20 @@ def main():
                     print("Kustutamine katkestatud.")
             except Exception as e:
                 print(f"❌ Viga kustutamisel: {e}")
-
-
+        
         elif valik == "8":
+            df = haldur.loe_koik()
+            parim_teos(df)
+        
+        elif valik == "9":
+            df = haldur.loe_koik()
+            soovinimekirja_arv(df)
+        
+        elif valik == "10":
+            df = haldur.loe_koik()
+            kuu_vordlus(df)
+        
+        elif valik == "11":
             print("👋 Head aega!")
             break
 
