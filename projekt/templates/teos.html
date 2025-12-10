@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <title>{{ teos.pealkiri }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='meediariiul.css') }}">
+</head>
+
+<body>
+
+<header>
+  <div class="logo-title">
+    <img src="{{ url_for('static', filename='pildid/books.png') }}" width="60">
+    <h1>MeediaRiiul</h1>
+  </div>
+</header>
+
+<div class="page">
+  <h2>{{ teos.pealkiri }}</h2>
+
+  <div class="detail-card">
+    <p><strong>Meedia tüüp:</strong> {{ teos.meedia_tüüp }}</p>
+    <p><strong>Žanr:</strong> {{ teos.žanr }}</p>
+    <p><strong>Autor / Režissöör:</strong> {{ teos.autor_või_režissöör }}</p>
+    <p><strong>Staatus:</strong> {{ teos.staatus }}</p>
+    <p><strong>Hinne:</strong> {{ teos.hinne }}</p>
+    <p><strong>Kuupäev:</strong> {{ teos.kuupäev }}</p>
+
+    {% if teos.arvamus %}
+      <p><strong>Arvamus:</strong><br>{{ teos.arvamus }}</p>
+    {% endif %}
+
+    {% if teos.lisainfo %}
+      <p><strong>Lisainfo:</strong><br>{{ teos.lisainfo }}</p>
+    {% endif %}
+  </div>
+
+  <br>
+  <a class="btn-back" href="{{ url_for('kogu') }}">⬅ Tagasi kogumikku</a>
+</div>
+
+</body>
+</html>
