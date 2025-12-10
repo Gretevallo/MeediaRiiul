@@ -29,3 +29,15 @@ Alfaversiooni võimaldab kasutajal hallata oma isiklikku meediakogumikku (nt raa
 Uue teose lisamisel saab kasutaja sisestada: pealkirja, meedia tüübi (raamat / film / sari), žanri, autori või režissööri, staatuse (lõpetatud / soovinimekiri / pooleli / peatatud), hinnangu, arvamuse, kuupäeva ja lisainfo
 Programm valideerib, et tüüp ja staatus oleksid lubatud väärtused.
 Kõik andmed salvestatakse püsivalt faili data.csv.
+
+# Käivitamine lokaalselt
+1. Klooni repo:
+   git clone https://github.com/Gretevallo/MeediaRiiul.git
+2. Liigu kausta:
+   cd MeediaRiiul
+3. Paigalda sõltuvused:
+   pip install -r requirements.txt
+4. Käivita:
+   python app.py
+5. Ava brauseris:
+   http://127.0.0.1:5000
