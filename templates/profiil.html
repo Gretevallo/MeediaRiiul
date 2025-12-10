@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <title>Avaleht</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='meediariiul.css') }}">
+</head>
+
+<body>
+<header>
+  <div class="logo-title">
+    <img src="{{ url_for('static', filename='pildid/books.png') }}"
+     width="60"
+     alt="MeediaRiiuli logo">
+
+    <h1>MeediaRiiul</h1>
+  </div>
+
+  <nav class="menüü">
+    <a href="{{ url_for('avaleht') }}">AVALEHT</a>
+    <a href="{{ url_for('kogu') }}">KOGU KOGUMIK</a>
+    <a href="{{ url_for('lisa') }}">LISA UUS TEOS</a>
+    <a href="{{ url_for('soovid') }}">SOOVINIMEKIRI</a>
+    <a href="{{ url_for('statistika') }}">STATISTIKA</a>
+    <a href="{{ url_for('profiil') }}">PROFIIL</a>
+
+    {% if current_user.is_authenticated %}
+      <div class="kasutaja-nurk">
+        <span>{{ current_user.kasutajanimi }}</span>
+        <a href="{{ url_for('logout') }}" class="logout">LOGI VÄLJA</a>
+      </div>
+    {% else %}
+      <a href="{{ url_for('login') }}">LOGI SISSE</a>
+    {% endif %}
+  </nav>
+</header>
+<div class="profiil-container">
+  <h2>MINU PROFIIL</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash-box {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="post" class="profiil-form">
+
+    <label>Kasutajanimi</label>
+    <input type="text" name="kasutajanimi" value="{{ kasutajanimi }}" required>
+
+    <label>Praegune parool</label>
+    <input type="password" name="vana_parool">
+
+    <label>Uus parool</label>
+    <input type="password" name="uus_parool">
+
+    <label>Korda uut parooli</label>
+    <input type="password" name="uus_parool_kaks">
+
+    <button type="submit" class="profiil-btn">Uuenda profiili</button>
+
+  </form>
+</div>
+

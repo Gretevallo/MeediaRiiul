@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+  <meta charset="UTF-8">
+  <title>MeediaRiiul – Statistika</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='meediariiul.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="icon" href="{{ url_for('static', filename='pildid/books.png') }}" type="image/png">
+</head>
+
+<body>
+
+<header>
+  <div class="logo-title">
+    <img src="{{ url_for('static', filename='pildid/books.png') }}" width="60" alt="Logo">
+    <h1>MeediaRiiul</h1>
+  </div>
+
+  <nav class="menüü">
+    <a href="{{ url_for('avaleht') }}">AVALEHT</a>
+    <a href="{{ url_for('kogu') }}">KOGU KOGUMIK</a>
+    <a href="{{ url_for('lisa') }}">LISA UUS TEOS</a>
+    <a href="{{ url_for('soovid') }}">SOOVINIMEKIRI</a>
+    <a class="aktiivne" href="{{ url_for('statistika') }}">STATISTIKA</a>
+    <a href="{{ url_for('profiil') }}">PROFIIL</a>
+
+    {% if current_user.is_authenticated %}
+    <div class="kasutaja-nurk">
+      <span> {{ current_user.kasutajanimi }}</span>
+      <a href="{{ url_for('logout') }}" class="logout">LOGI VÄLJA</a>
+    </div>
+  {% else %}
+    <a href="{{ url_for('login') }}">LOGI SISSE</a>
+  {% endif %}
+
+  </nav>
+</header>
+
+
+<h2>STATISTIKA</h2>
+
+<!-- ÜLDSTATISTIKA -->
+    <div class="home-stats-modern">
+        <div class="home-stat-card">
+            <strong>{{ kokku }}</strong>
+            <p>Teoseid kokku</p>
+        </div>
+        <div class="home-stat-card">
+            <strong>{{ lopetatud }}</strong>
+            <p>Lõpetatud</p>
+        </div>
+        <div class="home-stat-card">
+            <strong>{{ pooleli }}</strong>
+            <p>Pooleli</p>
+        </div>
+        <div class="home-stat-card">
+            <strong>{{ soovid }}</strong>
+            <p>Soovinimekirjas</p>
+        </div>
+      </div>
+      
+<div class="stat-box">
+  {% for nimi, info in statistika.items() %}
+    <div class="stat-item">
+      <h3>{{ info.pealkiri }}</h3>
+      <p><strong>Kokku:</strong> {{ info.arv }}</p>
+      <p><strong>Keskmine hinne:</strong> {{ info.keskmine }}</p>
+    </div>
+  {% endfor %}
+</div>
+
+<h3 style="text-align:center; margin-top:40px;">📊 Teoste jaotus</h3>
+<div class="graafikud-kast">
+  <div class="graafik">
+    <canvas id="seisGraafik"></canvas>
+  </div>
+
+  <div class="graafik">
+    <canvas id="hinneGraafik"></canvas>
+  </div>
+</div>
+
+<script>
+new Chart(document.getElementById("seisGraafik"), {
+    type: "pie",
+    data: {
+        labels: ["Lõpetatud", "Pooleli", "Soovinimekiri"],
+        datasets: [{
+            data: [{{ lopetatud }}, {{ pooleli }}, {{ soovid }}],
+            backgroundColor: ["#5b8f68", "#f3c15c", "#c44c4c"],
+        }]
+    },
+    options: { 
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins:{ 
+            legend:{ position:"bottom" }
+        }
+    }
+});
+
+new Chart(document.getElementById("hinneGraafik"), {
+    type: "bar",
+    data: {
+        labels: ["Keskmine hinne"],
+        datasets: [{
+            label: "Hinne",
+            data: [{{ keskmine_hinne }}],
+            backgroundColor: "#4b7ed6"
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { min: 0, max: 10 } }
+    }
+});
+
+</script>
+
+</body>
+</html>
+
+

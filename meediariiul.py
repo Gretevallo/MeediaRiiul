@@ -9,14 +9,24 @@ VEERUD = [
 ]
 
 LUBATUD_TÜÜBID = {"raamat", "film", "sari"}
-LUBATUD_STAATUSED = {"lõpetatud", "soovinimekiri", "pooleli", "peatatud"}
+LUBATUD_STAATUSED = {"lopetatud", "soovinimekiri", "pooleli", "peatatud"}
+ŽANRID = [
+    "Fantaasia", "Ulme", "Krimi", "Romaan", "Ajalugu", "Põnevik", "Draama",
+    "Õudus", "Seiklus", "Teadus", "Biograafia", "Animatsioon", "Dokumentaal",
+    "Komöödia", "Müsteerium", 
+]
 
 
 class KogumikuHaldur:
     """Kogumiku haldur võimaldab CSV-failis olevate teoste lisamist, muutmist ja otsimist."""
 
-    def __init__(self, faili_nimi: str = VAIKIMISI_FAIL):
-        self.faili_nimi = faili_nimi
+    def __init__(self, faili_nimi: str = VAIKIMISI_FAIL, user_id: str | None = None):
+        # Kui kasutajale peab looma eraldi faili
+        if user_id is not None:
+            self.faili_nimi = f"data_{user_id}.csv"
+        else:
+            self.faili_nimi = faili_nimi
+        
         self._tagada_fail()
 
     def _tagada_fail(self) -> None:
@@ -71,6 +81,11 @@ class KogumikuHaldur:
         staatus = staatus.strip().lower()
         if staatus not in LUBATUD_STAATUSED:
             raise ValueError(f"Staatus peab olema üks järgmistest: {LUBATUD_STAATUSED}")
+        
+        if hinne in (None, "", " "):
+            hinne_val = ""
+        else:
+            hinne_val = float(hinne)
 
         uus_id = self._uus_id()
         teos = {
@@ -80,7 +95,7 @@ class KogumikuHaldur:
             "žanr": žanr or "",
             "autor_või_režissöör": autor_või_režissöör or "",
             "staatus": staatus,
-            "hinne": float(hinne) if hinne is not None else "",
+            "hinne": hinne_val,
             "arvamus": arvamus or "",
             "kuupäev": kuupäev or "",
             "lisainfo": lisainfo or "",
@@ -108,48 +123,7 @@ class KogumikuHaldur:
             except ValueError:
                 rida["hinne"] = None
         return rida
-
-    def parim_teos(df: pd.DataFrame):
-        df["hinne"] = pd.to_numeric(df["hinne"], errors="coerce")
-        lõpetatud = df[df["staatus"] == "lõpetatud"]
-        if lõpetatud.empty:
-            print("❌ Pole ühtegi hinnatud lõpetatud teost.")
-            return
-        parim = lõpetatud.sort_values("hinne", ascending=False).iloc[0]
-        print("\n🏆 Kõrgeima hinnanguga teos:")
-        print(f"{parim['pealkiri']} ({parim['meedia_tüüp']}) — hinne {parim['hinne']}")
-
-    def soovinimekirja_arv(df: pd.DataFrame):
-        arv = (df["staatus"] == "soovinimekiri").sum()
-        print(f"\n📝 Soovinimekirjas on kokku {arv} teost.")
-
-    def kuu_vordlus(df: pd.DataFrame):
-        if df.empty:
-            print("❌ Andmeid pole.")
-            return
-        df = df.copy()
-        df["kuupäev"] = pd.to_datetime(df["kuupäev"], errors="coerce")
-        df = df.dropna(subset=["kuupäev"])
-        if df.empty:
-            print("❌ Ühtegi kuupäeva pole märgitud.")
-            return
-        täna = pd.Timestamp.today()
-        see_kuu = df[(df["kuupäev"].dt.year == täna.year) &
-                     (df["kuupäev"].dt.month == täna.month)]
-        eelmine_kuu = df[
-            (df["kuupäev"].dt.year == (täna.year if täna.month > 1 else täna.year - 1)) &
-            (df["kuupäev"].dt.month == (täna.month - 1 if täna.month > 1 else 12))
-        ]
-        print("\n📊 Teoste arv ajas:")
-        print(f"Sel kuul lõpetatud: {len(see_kuu)}")
-        print(f"Eelmisel kuul lõpetatud: {len(eelmine_kuu)}")
-        if len(see_kuu) > len(eelmine_kuu):
-            print("📈 Sel kuul rohkem kui eelmisel!")
-        elif len(see_kuu) < len(eelmine_kuu):
-            print("📉 Sel kuul vähem kui eelmisel.")
-        else:
-            print("➖ Sama palju kui eelmisel kuul.")
-
+    
     def uuenda_teos(self, teose_id: int, muudatused: Dict[str, Any]) -> bool:
         """Uuenda olemasoleva teose andmeid."""
         df = self._loe_df()
@@ -203,6 +177,50 @@ class KogumikuHaldur:
         df = self._loe_df()
         if df.empty:
             return df
+        
+def parim_teos(df: pd.DataFrame):
+    df["hinne"] = pd.to_numeric(df["hinne"], errors="coerce")
+    lõpetatud = df[df["staatus"] == "lõpetatud"]
+    if lõpetatud.empty:
+        print("❌ Pole ühtegi hinnatud lõpetatud teost.")
+        return
+    parim = lõpetatud.sort_values("hinne", ascending=False).iloc[0]
+    print("\n🏆 Kõrgeima hinnanguga teos:")
+    print(f"{parim['pealkiri']} ({parim['meedia_tüüp']}) — hinne {parim['hinne']}")
+
+def soovinimekirja_arv(df: pd.DataFrame):
+    arv = (df["staatus"] == "soovinimekiri").sum()
+    print(f"\n📝 Soovinimekirjas on kokku {arv} teost.")
+
+def kuu_vordlus(df: pd.DataFrame):
+    if df.empty:
+        print("❌ Andmeid pole.")
+        return
+    df = df.copy()
+    df["kuupäev"] = pd.to_datetime(df["kuupäev"], errors="coerce")
+    df = df.dropna(subset=["kuupäev"])
+    if df.empty:
+        print("❌ Ühtegi kuupäeva pole märgitud.")
+        return
+    täna = pd.Timestamp.today()
+    see_kuu = df[(df["kuupäev"].dt.year == täna.year) &
+                (df["kuupäev"].dt.month == täna.month)]
+    eelmine_kuu = df[
+        (df["kuupäev"].dt.year == (täna.year if täna.month > 1 else täna.year - 1)) &
+        (df["kuupäev"].dt.month == (täna.month - 1 if täna.month > 1 else 12))
+        ]
+    print("\n📊 Teoste arv ajas:")
+    print(f"Sel kuul lõpetatud: {len(see_kuu)}")
+    print(f"Eelmisel kuul lõpetatud: {len(eelmine_kuu)}")
+    if len(see_kuu) > len(eelmine_kuu):
+        print("📈 Sel kuul rohkem kui eelmisel!")
+    elif len(see_kuu) < len(eelmine_kuu):
+        print("📉 Sel kuul vähem kui eelmisel.")
+    else:
+        print("➖ Sama palju kui eelmisel kuul.")
+
+
+    
 
         mask = pd.Series([True] * len(df), index=df.index)
 
@@ -371,7 +389,8 @@ def main():
                     print("Kustutamine katkestatud.")
             except Exception as e:
                 print(f"❌ Viga kustutamisel: {e}")
-        
+
+
         elif valik == "8":
             df = haldur.loe_koik()
             parim_teos(df)
@@ -387,10 +406,6 @@ def main():
         elif valik == "11":
             print("👋 Head aega!")
             break
-
-        else:
-            print("❌ Vigane valik. Proovi uuesti.")
-
 
 if __name__ == "__main__":
     main()
