@@ -7,7 +7,6 @@ Kogumik võimaldab:
 - lisada soovide nimekirja teoseid, mida tahad tulevikus lugeda/vaadata,
 - otsida ja filtreerida teoseid,
 - näha statistikat ja graafikuid (nt kui palju oled lugenud või vaadanud, keskmised hinnangud),
-- saada lihtsaid soovitusi (nt “Sul on soovi nimekirjas 5 filmi, mida võiksid sel kuul ette võtta”).
 
 ## Kasutatud tehnoloogiad
 
