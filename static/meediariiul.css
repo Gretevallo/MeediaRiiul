@@ -388,7 +388,7 @@ nav a:hover {
 }
 
 /* ============================
-   SORTIMINE (PUHAS JA ÜHTLANE!)
+   SORTIMINE 
 ============================ */
 th a.sortable {
     color: white;
@@ -458,11 +458,6 @@ th a.sortable {
 .dropdown:hover .dropdown-content {
     display: block;
 }
-
-
-
-
-
 
 
 /* ============================
@@ -670,4 +665,21 @@ th a.sortable {
 .register-link a {
     color: #355e3b;
     font-weight: 600;
+}
+
+/* --- FOOTER --- */
+.footer {
+    margin-top: 40px;
+    padding: 20px 10px;
+    background-color: #6d8f6f;
+    color: #eee;
+    text-align: center;
+    font-size: 15px;
+    border-top: 3px solid #6d8f6f;
+}
+
+.footer-small {
+    font-size: 13px;
+    margin-top: 4px;
+    opacity: 0.7;
 }

@@ -37,16 +37,13 @@ app.secret_key = "väga_salajane_võti_12345"  # vajalik flash-sõnumite jaoks
 bcrypt = Bcrypt(app)
 
 def get_user_haldur():
+    # --- Tagastab kasutajaga seotud andmehalduri objekti ---
+    # --- Igal kasutajal on oma data_XX.csv fail, mida see klass haldab ---
     return KogumikuHaldur(user_id=current_user.id)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"  # kui proovib minna kaitstud lehele → suunatakse loginile
-
-from werkzeug.utils import secure_filename
-UPLOAD_FOLDER = "static/profiilipildid"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-ALLOWED_EXT = {"png", "jpg", "jpeg", "webp"}
 
 USERS_FILE = "users.csv"
 
@@ -60,8 +57,6 @@ class User(UserMixin):
         self.parool = parool
 
 
-haldur = KogumikuHaldur()  # kasutab data.csv
-
 ŽANRID = [
     "Fantaasia", "Ulme", "Krimi", "Romaan", "Ajalugu", "Põnevik", "Draama",
     "Horror", "Seiklus", "Teadus", "Biograafia", "Animatsioon", "Dokumentaal",
@@ -71,15 +66,8 @@ haldur = KogumikuHaldur()  # kasutab data.csv
 @app.route("/")
 @login_required
 def avaleht():
+    # --- Avaleht – kuvab statistikat, top 3 hinnatud teost ja kasutaja progressi ---
     df = get_user_haldur().loe_koik()
-
-    # --- Viimati lisatud ---
-    latest = []
-    if not df.empty:
-        df2 = df.copy()
-        df2["kuupäev"] = pd.to_datetime(df2["kuupäev"], errors="coerce")
-        df2 = df2.sort_values("kuupäev", ascending=False)
-        latest = df2.head(3).to_dict(orient="records")
 
     # --- Top 3 hinnatud ---
     top3 = []
@@ -94,25 +82,6 @@ def avaleht():
     total = len(df)
     done = (df["staatus"].str.lower() == "lopetatud").sum() if not df.empty else 0
     progress = round((done / total) * 100) if total > 0 else 0
-
-    # --- Põhiarvud ---
-    kokku = len(df)
-    lopetatud = (df["staatus"].str.lower() == "lopetatud").sum()
-    pooleli = (df["staatus"].str.lower() == "pooleli").sum()
-    soovid = (df["staatus"].str.lower() == "soovinimekiri").sum()
-
-    # --- Parim teos ---
-    best = None
-    if not df.empty:
-        df["hinne"] = pd.to_numeric(df["hinne"], errors="coerce")
-        lop_df = df[df["staatus"].str.lower() == "lõpetatud"]
-        if not lop_df.empty:
-            parim = lop_df.sort_values("hinne", ascending=False).iloc[0]
-            best = {
-                "pealkiri": parim["pealkiri"],
-                "hinne": parim["hinne"],
-                "tüüp": parim["meedia_tüüp"]
-            }
 
     # --- Kuu võrdlus ---
     this_month = 0
@@ -135,25 +104,16 @@ def avaleht():
                 "Sama palju kui eelmisel kuul"
             )
 
-    # --- RETURN ÕIGES KOHAIS ---
     return render_template(
-        "avaleht.html",
-        kokku=kokku,
-        lopetatud=lopetatud,
-        pooleli=pooleli,
-        soovid=soovid,
-        top3=top3,
-        latest=latest,
-        this_month=this_month,
-        last_month=last_month,
-        trend=trend,
-        done=done,
-        total=total,
-        progress=progress
-    )
-
-
-
+    "avaleht.html",
+    top3=top3,
+    this_month=this_month,
+    last_month=last_month,
+    trend=trend,
+    done=done,
+    total=total,
+    progress=progress
+)
 
 
 
@@ -286,7 +246,7 @@ def kogu():
         r["meedia_tüüp"] = tüüp_map.get(r["meedia_tüüp"], r["meedia_tüüp"])
         r["staatus"] = staatus_map.get(r["staatus"], r["staatus"])
 
-    zanrid = sorted({z for z in haldur.loe_koik()["žanr"] if z})
+    zanrid = sorted({z for z in get_user_haldur().loe_koik()["žanr"] if z})
 
     return render_template(
         "kogumik.html",
@@ -301,10 +261,6 @@ def kogu():
         sort_col=sort_col,
         sort_dir=sort_dir
     )
-
-
-
-
 
 
 @app.route("/soovid")
@@ -363,11 +319,11 @@ def soovid():
 
 
 
-
-
 @app.route("/statistika")
 @login_required
 def statistika():
+    # Kuvab kasutaja meediakogumiku statistika:
+    # koguarv, lõpetatud, pooleli, soovinimekiri ja keskmised hinded tüüpide kaupa.
     df = get_user_haldur().loe_koik().copy()
 
     # --- NORMALISEERI STAATUS ---
@@ -408,6 +364,7 @@ def statistika():
 @app.route("/muuda/<int:id>", methods=["GET", "POST"])
 @login_required
 def muuda(id):
+    # Kasutaja saab muuta teose andmeid
     teos = get_user_haldur().leia_teos(id)
     if not teos:
         flash("Teost ei leitud!", "error")
@@ -444,6 +401,7 @@ def muuda(id):
 @app.route("/kustuta/<int:id>")
 @login_required
 def kustuta(id):
+    #Kustutab teose
     if get_user_haldur().kustuta_teos(id):
         flash("Teos kustutati!", "success")
     else:
@@ -452,6 +410,7 @@ def kustuta(id):
 
 @login_manager.user_loader
 def load_user(user_id):
+    # Laeb kasutaja andmed sessioonist Flask-Login moodulile
     df = pd.read_csv(USERS_FILE, dtype=str)
     kasutaja = df[df["id"] == str(user_id)]
     if kasutaja.empty:
@@ -461,6 +420,7 @@ def load_user(user_id):
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    # Kasutaja loomine
     if request.method == "POST":
         kasutajanimi = request.form["kasutajanimi"]
         parool = request.form["parool"]
@@ -483,6 +443,7 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    #Logib kasutaja sisse – kontrollib kasutajanime ja parooli
     if request.method == "POST":
         kasutajanimi = request.form["kasutajanimi"]
         parool = request.form["parool"]
@@ -503,6 +464,7 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
+    #Logib kasutaja välja ja puhastab sessiooni.
     logout_user()
     flash("Oled välja logitud.", "success")
     return redirect(url_for("login"))
@@ -553,13 +515,5 @@ def profiil():
     return render_template("profiil.html", kasutajanimi=kasutajanimi)
 
 
-
-
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
-
-
