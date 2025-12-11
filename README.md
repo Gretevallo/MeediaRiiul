@@ -12,15 +12,25 @@ Kogumik võimaldab:
 ## Kasutatud tehnoloogiad
 
 - Python
+- HTML
+- CSS
+- JavaScript
+- Flask
 - pandas (andmete töötlemiseks)
-- matplotlib (visualiseerimiseks)
-- tkinter või PySimpleGUI (kasutajaliides)
 
 ## Failid
 
-- `meediariiul.py` – põhiprogramm
-- `data.csv` – andmete hoidmine
-- `README.md` – projekti kirjeldus
+app.py – rakenduse põhiprogramm (routing, andmetöötlus, kasutajate haldus)
+
+meediariiul.py – KogumikuHaldur klass: lugemine, lisamine, muutmine, kustutamine
+
+users.csv – kasutajate info (ID, kasutajanimi, parooliräsi)
+
+data_<userid>.csv – iga kasutaja isiklik meediakogumik
+
+meediariiul.css – kujundus
+
+README.md – projekti kirjeldus, kasutusjuhend
 
 # Alfaversioon
 
