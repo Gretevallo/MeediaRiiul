@@ -82,7 +82,11 @@
   <textarea name="arvamus">{{ teos.arvamus }}</textarea>
 
   <label>Kuupäev</label>
-  <input type="date" name="kuupäev" value="{{ teos.kuupäev }}">
+  <input 
+    type="date" 
+    name="kuupäev"
+    min="1900-01-01"
+    max="2100-12-31">
 
   <label>Lisainfo</label>
   <input name="lisainfo" value="{{ teos.lisainfo }}">

@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-
+from datetime import datetime
 import pandas as pd
 import os
 from meediariiul import KogumikuHaldur
@@ -151,6 +151,20 @@ def lisa():
         if zanr == "Muu":
             zanr = request.form.get("zanr_custom")
 
+        # --- KUUPÄEVA KONTROLL ---
+        kuup_str = request.form.get("kuupäev", "").strip()
+
+        if kuup_str:
+            try:
+                d = datetime.strptime(kuup_str, "%Y-%m-%d")
+                if d.year < 1900 or d.year > 2100:
+                    flash("Kuupäev peab olema vahemikus 1900–2100.", "error")
+                    return redirect(url_for("lisa"))
+            except ValueError:
+                flash("Kuupäev on vigane. Kasuta kuupäeva valikut.", "error")
+                return redirect(url_for("lisa"))
+
+        # --- LISAMINE ---
         get_user_haldur().lisa_teos(
             request.form["pealkiri"],
             request.form["meedia_tüüp"],
@@ -167,6 +181,7 @@ def lisa():
         return redirect(url_for("lisa"))
 
     return render_template("lisateos.html", zanrid=ŽANRID)
+
 
 
 @app.route("/kogu")
@@ -373,10 +388,26 @@ def muuda(id):
         return redirect(url_for("kogu"))
 
     if request.method == "POST":
+
+        # --- KUU PÄEVA KONTROLL ---
+        kuup_str = request.form.get("kuupäev", "").strip()
+
+        if kuup_str:
+            try:
+                d = datetime.strptime(kuup_str, "%Y-%m-%d")
+                if d.year < 1900 or d.year > 2100:
+                    flash("Kuupäev peab olema vahemikus 1900–2100.", "error")
+                    return redirect(url_for("muuda", id=id))
+            except ValueError:
+                flash("Kuupäev on vigane. Kasuta kuupäeva valikut.", "error")
+                return redirect(url_for("muuda", id=id))
+
+        # --- MUUDATUSED ---
         muudatused = {k: request.form.get(k) for k in [
             "pealkiri", "meedia_tüüp", "žanr", "autor_või_režissöör",
             "staatus", "hinne", "arvamus", "kuupäev", "lisainfo"
         ]}
+
         haldur.uuenda_teos(id, muudatused)
         flash("Muudatused salvestatud!", "success")
         return redirect(url_for("kogu"))

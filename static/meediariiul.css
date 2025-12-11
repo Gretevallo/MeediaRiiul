@@ -250,7 +250,7 @@ nav a:hover {
     background: white;
     border-radius: 14px;
     box-shadow: 0 6px 22px rgba(0,0,0,0.12);
-    overflow: hidden;
+    overflow: visible;
 }
 
 .ilus-tabel {
@@ -426,9 +426,14 @@ th a.sortable {
     background: rgba(255,255,255,0.30);
 }
 
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
 .dropdown-content {
     display: none;
-    position: absolute;
+    position: absolute;   /* OLULINE */
     top: 120%;
     left: 0;
     background: white;
@@ -436,7 +441,7 @@ th a.sortable {
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     border-radius: 8px;
     padding: 4px 0;
-    z-index: 50;
+    z-index: 999; /* et dropdown oleks kõige peal */
 }
 
 .dropdown-content a {
@@ -450,13 +455,16 @@ th a.sortable {
     background: #ecf4ec;
 }
 
-.header-flex:hover .dropdown-content {
-    display: block;
-}
-
 .dropdown:hover .dropdown-content {
     display: block;
 }
+
+
+
+
+
+
+
 /* ============================
    STATISTIKA – Ülemised kastid
 ============================ */
