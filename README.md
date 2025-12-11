@@ -16,7 +16,12 @@ Kogumik võimaldab:
 - CSS
 - JavaScript
 - Flask
+- Flask-Login
+- Flask-Bcrypt
 - pandas (andmete töötlemiseks)
+- CSV
+- Pip
+- GitHub
 
 ## Failid
 
@@ -39,6 +44,18 @@ Alfaversiooni võimaldab kasutajal hallata oma isiklikku meediakogumikku (nt raa
 Uue teose lisamisel saab kasutaja sisestada: pealkirja, meedia tüübi (raamat / film / sari), žanri, autori või režissööri, staatuse (lõpetatud / soovinimekiri / pooleli / peatatud), hinnangu, arvamuse, kuupäeva ja lisainfo
 Programm valideerib, et tüüp ja staatus oleksid lubatud väärtused.
 Kõik andmed salvestatakse püsivalt faili data.csv.
+
+# Beetaversioon
+
+Beetaversioon võimaldab kasutajal turvaliselt hallata oma isiklikku meediakogumikku. Kasutaja saab luua konto, sisse logida ning vaadata ja muuta oma profiili.
+
+Kogumikus saab lisada, vaadata, muuta ja kustutada teoseid, sh pealkiri, meedia liik, žanr, autor või režissöör, staatus, arvamus, hinne ja kuupäev. Tabelivaates kuvatakse korraga kuni 10 teost. Otsing ja filtreerimine toimivad žanri, autor/režissööri, pealkirja, meedia liigi ja staatuse järgi.
+
+Soovinimekiri võimaldab hallata tuleviku meediat, lisada ja kustutada teoseid ning filtreerida kuvades ka koguarvu.
+
+Statistika kuvab meedia liikide jaotuse, lõpetatud/pooleli/soovinimekirjas teoste hulga, keskmise hinne ja parima teose avalehel koos sellel kui ka eelmisel kuul lõpetatud teoste hulgaga.
+
+Avalehel kuvatakse lühike ülevaade kogumikust ja kiirlingid peamistele funktsioonidele. 
 
 # Käivitamine lokaalselt
 1. Paigalda Python (kui puudub):
