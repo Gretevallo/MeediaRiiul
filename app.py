@@ -1,3 +1,29 @@
+"""
+===========================================
+MeediaRiiul – meediakogumiku veebirakendus
+Autor: Grete Vällo ja Helena Sinilaid
+Aasta: 2025
+
+Käivitusjuhis:
+
+Paigalda Python (kui puudub):
+
+Laadi alla https://www.python.org/downloads/windows/
+Installimisel märgi "Add Python to PATH"
+Klooni repo: git clone https://github.com/Gretevallo/MeediaRiiul.git
+
+Liigu kausta: cd MeediaRiiul
+
+Paigalda sõltuvused: python -m pip install -r requirements.txt
+
+Kui mõni teek puudub, paigalda käsitsi: python -m pip install flask python -m pip install flask-login python -m pip install flask-bcrypt python -m pip install pandas
+
+Käivita: python app.py
+
+Ava brauseris: http://127.0.0.1:5000 www.python.org
+===========================================
+"""
+
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
