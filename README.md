@@ -31,13 +31,28 @@ Programm valideerib, et tüüp ja staatus oleksid lubatud väärtused.
 Kõik andmed salvestatakse püsivalt faili data.csv.
 
 # Käivitamine lokaalselt
-1. Klooni repo:
+1. Paigalda Python (kui puudub):
+   - Laadi alla https://www.python.org/downloads/windows/
+   - Installimisel märgi "Add Python to PATH"
+
+2. Klooni repo:
    git clone https://github.com/Gretevallo/MeediaRiiul.git
-2. Liigu kausta:
+
+3. Liigu kausta:
    cd MeediaRiiul
-3. Paigalda sõltuvused:
-   pip install -r requirements.txt
-4. Käivita:
+
+4. Paigalda sõltuvused:
+   python -m pip install -r requirements.txt
+
+   Kui mõni teek puudub, paigalda käsitsi:
+   python -m pip install flask 
+   python -m pip install flask-login 
+   python -m pip install flask-bcrypt 
+   python -m pip install pandas
+
+5. Käivita:
    python app.py
-5. Ava brauseris:
+
+6. Ava brauseris:
    http://127.0.0.1:5000
+www.python.org
